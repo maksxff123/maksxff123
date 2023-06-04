@@ -1,0 +1,48 @@
+% Tworzenie macierzy A 3x5
+A = [2 3 9 2 9; 2 5 2 1 1; 6 1 8 3 1];
+
+% Tworzenie macierzy B 5x3
+B = [6 7 7; 9 3 2; 2 5 1; 6 0 7; 0 3 2];
+
+% Sprawdzenie wymiarów macierzy
+[wA, kA] = size(A);
+[wB, kB] = size(B);
+
+AT = zeros(kA, wA);
+for i = 1:kA
+    for j = 1:wA
+        AT(i, j) = A(j, i);
+    end
+end
+disp(AT)
+disp("\n")
+
+BT = zeros(kB, wB);
+for i = 1:kB
+    for j = 1:wB
+        BT(i, j) = B(j, i);
+    end
+end
+disp(BT)
+disp("\n")
+[wAT, kAT] = size(AT);
+[wBT, kBT] = size(BT);
+
+if kAT == wBT
+    % Tworzenie macierzy wynikowej C
+    C = zeros(wAT, kBT);
+
+    % Pętla for dla przemnożenia macierzy
+    for i = 1:wAT
+        for j = 1:kBT
+            for k = 1:kAT
+                C(i, j) = C(i, j) + AT(i, k) * BT(k, j);
+            end
+        end
+    end
+
+    % Wyświetlanie macierzy C
+    disp(C)
+else
+    disp("Nieprawidłowe wymiary macierzy!")
+end
