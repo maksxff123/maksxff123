@@ -1,0 +1,49 @@
+% Dane
+w1 = [-5, 5];
+w2 = [-3, 1];
+w3 = [1, 2];
+w4 = [2, -1];
+w5 = [-2, 4];
+w6 = [4, -1];
+
+w = [w1; w2; w3; w4; w5; w6];
+
+% Przykład użycia
+x = w(:, 1); % Wartości x z danych
+z = w(:, 2); % Wartości z (f(x)) z danych
+
+Z = lagrange_interp(x, z, xi);
+function Z = lagrange_interp(x, z, xi)
+    n = size(x, 1);
+    Z = zeros(size(xi));
+
+    for i = 1:length(xi)
+        L = ones(n, 1);
+        for j = 1:n
+            for k = 1:n
+                if k ~= j
+                    L(j) = L(j) * (xi(i) - x(k)) / (x(j) - x(k));
+                end
+            end
+        end
+
+        Zi = 0;
+        for j = 1:n
+            Zi = Zi + L(j) * z(j);
+        end
+        Z(i) = Zi;
+    end
+end
+
+
+
+Z = lagrange_interp(x, z, xi);
+plot(x, z, 'rx', 'MarkerSize', 8); % Punkty danych
+hold on;
+grid on;
+plot(xi, Z, 'b-', 'LineWidth', 1); % Interpolowana funkcja
+xlabel('x');
+ylabel('z');
+title('Interpolacja Lagrange''a');
+legend('Dane', 'Interpolacja');
+grid on;
