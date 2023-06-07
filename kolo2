@@ -1,0 +1,235 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+using namespace std; 
+struct SAutor{
+    string imie;
+    string nazwisko;
+    char typ;
+    int wydane;
+    string* ksiazka;
+    void wczytaj(ifstream& fin);
+    bool wypisz (ostream& out = cout);
+};
+
+ void SAutor::wczytaj(ifstream& fin){
+    if (!fin.is_open()) {
+    cerr << "Blad: nie otwiera sie plik" << endl;
+    fin.ignore();
+    fin.clear();
+    return;
+}
+    if(!(fin >> imie)){
+        cerr<<"Blad : nie wczyta imie"<<endl; 
+        fin.ignore();
+        fin.clear();
+        return;
+    }
+    if(!(fin >> nazwisko)){
+        cerr<<"Blad : nie wczyta nazwisko"<<endl; 
+        fin.ignore();
+        fin.clear();
+        return;
+    }
+    if(!(fin >> typ)){
+        cerr<<"Blad : typ"<<endl; 
+        fin.ignore();
+        fin.clear();
+        return;
+    }
+     if(!(fin >> wydane)){
+        cerr<<"Blad : wydane ksiazki"<<endl; 
+        fin.ignore();
+        fin.clear();
+        return;
+    }
+    ksiazka = new string[wydane];
+    for(int i = 0; i < wydane; i++  ){
+        if(!(fin >> ksiazka[i])){
+        cerr<<"Blad : ksiazki"<<endl; 
+        delete[] ksiazka;
+        ksiazka = nullptr;
+        fin.ignore();
+        fin.clear();
+        return;
+    }
+    }
+fin.ignore();
+fin.clear();
+return;
+}
+bool SAutor::wypisz (ostream& fout){
+    if (!fout.good()) {
+    cerr << "Blad: strumienia(fout)" << endl;
+    fout.clear();
+    return false;
+}
+     if(!(fout << imie<<endl)){
+        cerr<<"Blad : nie wypisz imie "<<endl;
+        fout.clear();
+        return false;
+    }
+    if(!(fout << nazwisko<<endl)){
+        cerr<<"Blad: nie wypisa nazwisko "<<endl;
+        fout.clear();
+        return false;
+    }
+    if(!(fout << typ<<endl)){
+        cerr<<"Blad: nie wypisa nazwisko "<<endl;
+        fout.clear();
+        return false;
+    }
+    if(!(fout << wydane<<endl)){
+        cerr<<"Blad: nie wypisa nazwisko "<<endl;
+        fout.clear();
+        return false;
+    }
+    ksiazka  = new string[wydane];
+    for (int i = 0; i < wydane; i++)
+    {
+        if(!(fout << ksiazka[i]<<endl)){
+        cerr<<"Blad: nie wypisa nazwisko "<<endl;
+        fout.clear();
+        return false;
+    }
+    }
+    
+fout.clear();
+return true;
+}
+struct SLista{
+    string nazwa_listy;
+    int liczbe_aout;
+    SAutor* tab;
+    bool wczytaj(ifstream& );
+    bool wypisz(ostream& out = cout);
+    float srednia ();
+};
+
+bool SLista::wczytaj(ifstream& fin){
+    if(!fin.is_open()){
+        cerr<<"Blad nie otwiera sie plik"<<endl; 
+        fin.ignore();
+        fin.clear();
+        return false;
+    }
+    if(!(fin >> nazwa_listy)){
+        cerr<<"Blad: nie wczyta nazwe listy"<<endl; 
+        fin.ignore();
+        fin.clear();
+        return false;
+    }
+    if(!(fin >> liczbe_aout)){
+        cerr<<"Blad: liczy autorow"<<endl; 
+        fin.ignore();
+        fin.clear();
+        return false;
+    }
+    tab = new SAutor[liczbe_aout];
+    for (int i = 0; i < liczbe_aout; i++)
+    {
+        tab[i].wczytaj(fin);
+        if(!fin){
+        cerr<<"Blad: nie pracuje wczytaj"<<endl; 
+        delete [] tab;
+        tab = nullptr;
+        fin.ignore();
+        fin.clear();
+        return false;
+        
+    }
+    }
+fin.ignore();
+fin.clear(); 
+return true;    
+}
+bool SLista::wypisz(ostream& fout){
+    if(!fout.good()){
+        cerr<<"Blad: strumienia(fout)"<<endl;
+        fout.clear();
+        return false;
+    }
+
+     if(!(fout << nazwa_listy<<endl)){
+        cerr<<"Blad: wypisa nazwy listy"<<endl;
+        fout.clear();
+        return false;
+    }
+    if(!(fout << liczbe_aout<<endl)){
+        cerr<<"Blad: liczba autorow"<<endl;
+        fout.clear();
+        return false;
+    }
+
+    for (int i = 0; i < liczbe_aout; i++)
+    {
+        tab[i].wypisz(fout);
+        if(!(fout)){
+        cerr<<"Blad: liczba autorow"<<endl;
+        delete[] tab;
+        tab = nullptr;
+        fout.clear();
+        return false;
+    }
+        
+    }
+    
+fout.clear();
+return true;
+}
+
+float SLista::srednia() {
+    int sumak = 0;
+    int lliczbaA_B = 0;
+
+    for (int i = 0; i < liczbe_aout; i++) {
+        if (tab[i].typ == 'B') {
+            sumak += tab[i].wydane;
+            lliczbaA_B++;
+        }
+    }
+    return sumak/lliczbaA_B;
+}
+
+
+
+void usun (SLista& lista){
+    for (int i = 0 ; i <  lista.liczbe_aout; i++){
+        delete[] lista.tab[i].ksiazka;
+        lista.tab[i].ksiazka = nullptr;
+    }
+    delete[] lista.tab;
+    lista.tab = nullptr;
+}
+
+
+
+int main (int argc, char**argv ){
+    if(argc != 3){
+        cerr<<"Za malo parametrow"<<endl;
+        cout<<"/nazwa programu, in.txt, out.txt"<<endl;
+        return 1;
+    }
+    ifstream fin;
+    fin.open(argv[1]);
+    ofstream fout;
+    fout.open(argv[2]);
+    SLista lista;
+    if(!(lista.wczytaj(fin))){
+        cerr<<"Blad strumienai(fin)"<<endl;
+        fin.ignore();
+        fin.clear();
+        return 1;
+    }
+fin.close();
+    if(!(lista.wypisz(fout))){
+        cerr<<"Blad strumienai(fout)"<<endl;
+        fin.ignore();
+        fin.clear();
+        return 1;
+    }
+
+fout.close();
+usun(lista);
+return 0;
+}
