@@ -1,0 +1,242 @@
+#include <iostream>
+#include <string>
+#include <fstream>
+using namespace std; 
+struct SStudent {
+	string imie;
+    string nazwisko;
+    int numer_indeksu;
+    int liczba_ocen;
+    float* kurs;
+    bool wczytaj(ifstream&);
+    bool wypisz(ostream& fout = cout);
+};
+bool SStudent::wczytaj(ifstream& fin) {
+    if (!(fin >> imie)) {
+    cerr << "Blad: nie wczytano imienia" << endl;
+    fin.ignore();
+    fin.clear();
+    return false;
+}
+
+if (!(fin >> nazwisko)) {
+    cerr << "Blad: nie wczytano nazwiska" << endl;
+    fin.ignore();
+    fin.clear();
+    return false;
+}
+
+if (!(fin >> numer_indeksu)) {
+    cerr << "Blad: nie wczytano numeru indeksu" << endl;
+    fin.ignore();
+    fin.clear();
+    return false;
+}
+
+if (!(fin >> liczba_ocen)) {
+    cerr << "Blad: nie wczytano liczby ocen" << endl;
+    fin.ignore();
+    fin.clear();
+    return false;
+}
+
+
+kurs = new float[liczba_ocen];
+for (int i = 0; i < liczba_ocen; i++) {
+    if (!(fin >> kurs[i])) {
+        cerr << "Blad: nie wczytano oceny" << endl;
+        delete[] kurs;
+        kurs = nullptr;
+        fin.ignore();
+        fin.clear();
+        return false;
+    }
+}
+
+    fin.clear();
+    return true;
+}
+
+
+
+bool SStudent::wypisz(ostream& fout) {
+   if (!fout.good()) {
+        cerr << "Blad strumienia3" << endl;
+        fout.clear();
+        return false;
+    }
+    
+    if (!(fout << imie<<endl)) {
+        cerr << "Blad: nie wczytano imienia" << endl;
+        fout.clear();
+        return false;
+    }
+    
+    if (!(fout << nazwisko<<endl)) {
+        cerr << "Blad: nie wczytano nazwiska" << endl;
+        fout.clear();
+        return false;
+    }
+    
+    if (!(fout << numer_indeksu<<endl)) {
+        cerr << "Blad: nie wczytano numeru indeksu" << endl;
+        fout.clear();
+        return false;
+    }
+    if (!(fout << liczba_ocen<<endl)) {
+        cerr << "Blad: nie wpisano liczby ocen" << endl;
+        fout.clear();
+        return false;
+    }
+    for ( int i = 0; i < liczba_ocen; i++) {
+        if (!(fout << kurs[i]<<endl)) {
+            cerr << "Blad: nie wczytano kursy" << endl;
+            fout.clear();
+            return false;
+        }
+    }
+fout.clear();
+return true;
+}
+struct SLista {
+    string nazwa_listy;
+    int liczba_stud;
+    SStudent* studenty;
+
+    bool wczytaj(ifstream&);
+    bool wypisz(ostream& out = cout);
+    double srednia();
+};
+
+bool SLista::wczytaj(ifstream&fin){
+	if (!fin.is_open()) {
+        cerr << "Blad strumienia2" << endl;
+        fin.ignore();
+        fin.clear();
+        return false;
+    }
+	if (!(fin >> nazwa_listy)) {
+        cerr << "Blad strumienia nazwa listy" << endl;
+        fin.ignore();
+        fin.clear();
+        return false;
+    }
+	if (!(fin >> liczba_stud)) {
+        cerr << "Blad strumienia liczba studentwo1 " << endl;
+        fin.ignore();
+        fin.clear();
+        return false;
+    }
+	 if(liczba_stud > 0){
+                studenty = new SStudent[liczba_stud];
+                for( int i = 0; i< liczba_stud; i++ ){
+                    if(!(studenty[i].wczytaj(fin))){
+                         delete[] studenty;
+                         studenty = nullptr;
+                        cerr<<"nie pracuje fun wczytaj"<<endl;
+                        fin.ignore();
+                        fin.clear();
+                        return false;
+                    }
+                }
+            }
+fin.ignore();
+fin.clear();
+return true;
+}
+bool SLista::wypisz(ostream& fout ){
+	if (!fout.good()) {
+        cerr << "Blad strumienia1" << endl;
+        fout.clear();
+        return false;
+    }
+	if (!(fout << nazwa_listy<<endl)) {
+        cerr << "Blad strumienia nazwa listy" << endl;
+        fout.clear();
+        return false;
+    } 
+	if (!(fout << liczba_stud<<endl)) {
+        cerr << "Blad strumienia nazwa listy " << endl;
+        fout.clear();
+        return false;
+    }
+
+	 if(liczba_stud > 0){
+                for( int i = 0; i< liczba_stud; i++ ){
+                    if (!(studenty[i].wypisz(fout))){
+                    fout.clear();
+                    delete[] studenty;
+                    studenty = nullptr;
+                    return false;
+                    }
+                }
+            }
+fout.clear();
+return true;
+}
+double SLista::srednia() {
+    int suma_ocen = 0;
+    int liczba_ocen = 0;
+
+    for (int i = 0; i < liczba_stud; i++) {
+        for (int j = 0; j < studenty[i].liczba_ocen; j++) {
+            if (studenty[i].kurs[j] > 3.5) {
+                suma_ocen += studenty[i].kurs[j];
+                liczba_ocen++;
+            }
+        }
+    }
+
+    if (liczba_ocen != 0) {
+        return double(suma_ocen) / double(liczba_ocen);
+    } else {
+        return 0.0;
+    }
+}
+void usun (SLista& lista){
+    for( int i = 0; i < lista.liczba_stud; i++){
+        delete[] lista.studenty[i].kurs;
+        lista.studenty[i].kurs = nullptr;
+    }
+    delete[] lista.studenty;
+    lista.studenty = nullptr;
+}
+
+
+
+
+int main(int argc, char** argv){
+        if(argc != 3){
+            cerr<<"Malo parametrow";
+            cout<<"/nazwa in.txt, out.txt";
+            return -10;
+    }
+    ifstream fin(argv[1]);
+    if (!fin.is_open()) {
+        cerr << "Blad: nie udalo sie otworzyc pliku " <<  endl;
+        return 1;
+    }
+
+    ofstream fout(argv[2]);
+    if (!fout.is_open()) {
+        cerr << "Blad: nie udalo sie otworzyc pliku " <<  endl;
+        return 1;
+    }
+
+    SLista lista;
+    if (!lista.wczytaj(fin)) {
+        cerr << "Blad wczytywania danych listy studentow." << endl;
+        return 1;
+    }
+
+    fin.close();
+
+    if (!lista.wypisz(fout)) {
+        cerr << "Blad wypisywania danych listy studentow." << endl;
+        return 1;
+    }
+    cout << "Srednia liczba ocen zaliczen powyzej 3.5: " << lista.srednia() << endl;
+    
+    usun(lista);
+	return 0;
+}
