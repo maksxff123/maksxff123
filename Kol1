@@ -1,0 +1,93 @@
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <string>
+#include <cstring>
+#include <fstream>
+using namespace std;
+
+void utworz(float*& t, const int n) {
+    t = new floar[n];
+    for(unsigned int i = 0 ; i<n; i++){
+        t[i]= 0;
+    }
+}
+void wypelnij(float* t, const int n, int min1, int max1) {
+    for (unsigned int i = 0; i < n; i++) {
+        float random = (rand() / (float)RAND_MAX * max1) + min1;
+        t[i] = random; 
+        }
+}
+
+void wypisz(float* t, const int n) {
+    for (unsigned int i = 0; i < n; i++) {
+        cout << t[i] << "   ";
+    }
+    cout << endl;
+}
+
+void usun(float* t, const unsigned int n) {
+    delete[] t;
+    t = nullptr;
+}
+
+int mail(const string str) {
+    return str.find("@") != string::npos;
+}
+
+void selektor(const char* file_in, const char* file_out) {
+    ifstream plik_wej(file_in);
+    if (!plik_wej.good()) {
+        cerr << "Blad strumienia";
+        plik_wej.close();
+        return;
+    }
+
+    ofstream plik_wyj(file_out);
+    if (!plik_wyj.good()) {
+        cerr << "Blad strumienia";
+        plik_wyj.close();
+        return;
+    }
+
+    string line;
+    while (plik_wej >> line) {
+        if (mail(line)) {
+            plik_wyj << line << endl;
+        }
+    }
+
+    plik_wej.close();
+    plik_wyj.close();
+}
+
+int main(int argc, char** argv) {
+    if (argc != 6) {
+		cerr << "Za malo parametrow: " << endl;
+		cout <<  "./program rozmiar, min, max, plik_wej, plik_wyj";
+		return -1;
+	}
+    srand(time(NULL));
+    int n;
+    int min1, max1;
+    n = atoi(argv[1]);
+    min1 = atoi(argv[2]);
+    max1 = atoi(argv[3]);
+   if (min1 >= 0 || max1 <= 0){
+        cerr << "Nie poprawna max lub min " << endl;
+        cout << "Min musi byc < 0, a max musi byc > 0 ";
+		return 1;
+   }
+
+    float* t = nullptr;
+    utworz(t, n);
+    wypelnij(t, n, min1, max1);
+    cout<<"Tab: ";
+    wypisz(t,n);
+    usun(t,n);
+    const char* file_in = argv[4];
+    const char* file_out = argv[5];
+    selektor(file_in,file_out);
+
+    return 0;
+}
